@@ -39,7 +39,7 @@ namespace web_api.Controllers
         [HttpGet]
         public ActionResult<List<ShoppingItem>> Get()
         {
-            return _context.ShoppingItems.ToList();
+            return Ok(_context.ShoppingItems.ToList());
         }
 
         // GET api/values/5
@@ -51,14 +51,14 @@ namespace web_api.Controllers
             if (shoppingItem == null)
                 return NotFound();
 
-            return shoppingItem;
+            return Ok(shoppingItem);
         }
         
         // POST api/values
         [HttpPost]
         public IActionResult Post([FromBody]ShoppingItem shoppingItem)
         {
-            if (shoppingItem == null)
+            if (shoppingItem == null || !ModelState.IsValid)
             {
                 return BadRequest();
             }
@@ -73,7 +73,7 @@ namespace web_api.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody]ShoppingItem shoppingItem)
         {
-            if (shoppingItem == null || shoppingItem.Id != id)
+            if (shoppingItem == null || shoppingItem.Id != id || !ModelState.IsValid)
                 return BadRequest();
 
             var existingShoppingItem = _context.ShoppingItems.FirstOrDefault(p => p.Id == id);
@@ -88,7 +88,7 @@ namespace web_api.Controllers
             _context.ShoppingItems.Update(existingShoppingItem);
             _context.SaveChanges();
 
-            return new NoContentResult();
+            return Ok(shoppingItem);
         }
 
         // DELETE api/values/5
@@ -101,6 +101,10 @@ namespace web_api.Controllers
             {
                 _context.ShoppingItems.Remove(shoppingItem);
                 _context.SaveChanges();
+            }
+            else
+            {
+                return NotFound();
             }
 
             return new NoContentResult();
